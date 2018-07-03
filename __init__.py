@@ -1,5 +1,6 @@
 import re
 import os
+import json
 from pandas import pandas as pd 
 from pymongo import MongoClient
 
@@ -41,21 +42,38 @@ class Collection:
 		if self._field_mapper == None:
 			f_mapper = 'mappings/{}.json'.format(self._name)
 			self._field_mapper = json.load(open(f_mapper, 'r')) if os.path.isfile(f_mapper) else {}
-		
-	def _remap_filter(self, query):
+
+			self._field_mapper_reversed = {}
+			for key,value in self._field_mapper.items():
+				if not value in self._field_mapper_reversed:
+					self._field_mapper_reversed[value] = []
+				self._field_mapper_reversed[value].append(key)
+
+	def _remap_query(self, query):
 		self._load_mapper()
-		return query
+		r_query = {}
+		for field,value in query.items():
+			f_mapped = self._field_mapper_reversed.get(field, [field])
+			if len(f_mapped) > 1:
+				r_query['$or'] = list({_f:value} for _f in f_mapped)
+			else:
+				r_query[f_mapped[0]] = value
+		return r_query
 
 	def _remap_fields(self, fields):
 		self._load_mapper()
-		return fields
+		r_fields = {}
+		for field,value in fields.items():
+			f_mapped = self._field_mapper_reversed.get(field, [field])
+			r_fields.update(dict((_f,value) for _f in f_mapped))
+		return r_fields
 
 	def _build_dataframe(self, data, mapper):
 		return pd.DataFrame([self._flat_me(doc) for doc in data])
 
 	def find(self, query=None, fields=None):
-		r_query = self._remap_filter(query)
-		r_fields = self._remap_fields(fields)
+		r_query = self._remap_query(query) if query else None
+		r_fields = self._remap_fields(fields) if fields else None
 
 		result = self._collection.find(r_query, r_fields)
 		if result.count():
@@ -66,15 +84,15 @@ class Collection:
 		return self._collection.list_indexes()
 
 class MongoPandas:
-	def __init__(self, mongo_uri):
-		self._mongo_uri = mongo_uri
-		self._instance = MongoClient(mongo_uri)
-		self._dbs = {}
-
 	@classmethod
 	def _extract_db_from_uri(cls, uri):
 		match = re.search('[^/]/(\w+)$',uri)
 		self._db = match.group(1) if match else None
+
+	def __init__(self, mongo_uri):
+		self._mongo_uri = mongo_uri
+		self._instance = MongoClient(mongo_uri)
+		self._dbs = {}
 
 	def __getattr__(self, db):
 		if db not in self._dbs:
