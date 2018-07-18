@@ -40,7 +40,7 @@ class Collection:
 
 	def _load_mapper(self):
 		if self._field_mapper == None:
-			f_mapper = 'mappings/{}.json'.format(self._name)
+			f_mapper = f'{os.path.dirname(__file__)}/mappings/{self._name}.json'
 			self._field_mapper = json.load(open(f_mapper, 'r')) if os.path.isfile(f_mapper) else {}
 
 			self._field_mapper_reversed = {}
@@ -74,7 +74,6 @@ class Collection:
 	def find(self, query=None, fields=None, **kwargs):
 		r_query = self._remap_query(query) if query else None
 		r_fields = self._remap_fields(fields) if fields else None
-
 		result = self._collection.find(r_query, r_fields)
 
 		if 'limit' in kwargs:
@@ -87,6 +86,11 @@ class Collection:
 
 	def count(self):
 		return self._collection.count()
+
+	def get_mappings(self):
+		if not self._field_mapper:
+			self._load_mapper()
+		return json.dumps(self._field_mapper, indent=4)
 
 
 class MongoPandas:
@@ -104,3 +108,4 @@ class MongoPandas:
 		if db not in self._dbs:
 			self._dbs[db] = Database(self._instance, db)
 		return self._dbs[db]
+

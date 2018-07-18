@@ -18,6 +18,8 @@
         "credit_analysis.modules_data.geru_score.data.score.geru": "score_geru",
         "credit_analysis.modules_data.geru_score.data.score.fully_paid_bonus":"fully_paid_bonus",
         "credit_analysis.modules_data.geru_score.data.node": "geru_score_exit_node",
+        "credit_analysis.modules_data.geru_score.data.rate.borrower": "borrower_rating",
+        "credit_analysis.modules_data.geru_score.data.rate.operation": "operation_rating",
         "credit_analysis.modules_data.short_term_default_attenuator.data.score": "score_short_term",
         "credit_analysis.modules_data.short_term_default_attenuator.data.verbose_result": "verbose_result_short_term",
         "credit_analysis.modules_data.fraud_mitigator.data.score": "score_fraud_mitigator",
