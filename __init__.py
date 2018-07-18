@@ -68,18 +68,19 @@ class Collection:
 			r_fields.update(dict((_f,value) for _f in f_mapped))
 		return r_fields
 
-	def _build_dataframe(self, data, mapper):
-		return pd.DataFrame([self._flat_me(doc) for doc in data])
+	def _build_dataframe(self, data, fields):
+		return pd.DataFrame([self._flat_me(doc) for doc in data], columns=fields)
 
 	def find(self, query=None, fields=None, **kwargs):
 		r_query = self._remap_query(query) if query else None
 		r_fields = self._remap_fields(fields) if fields else None
-		result = self._collection.find(r_query, r_fields)
+		o_fields = [field for field,value in fields.items() if value == 1]
+		result = self._collection.find(r_query, o_fields)
 
 		if 'limit' in kwargs:
 			result = result.limit(kwargs['limit'])
 
-		return self._build_dataframe(result, r_fields) if result.count() else None
+		return self._build_dataframe(result, fields) if result.count() else None
 
 	def list_indexes(self):
 		return self._collection.list_indexes()
