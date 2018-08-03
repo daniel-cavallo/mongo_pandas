@@ -48,5 +48,9 @@
         "credit_analysis.modules_data.multiple_rule_deny_as.data.matchs.Declared Salary 3 times bigger than the maximum estimated salary.":"multiple_rule_deny_as_declared_salary_3_times_bigger_than_the_maximum_estimated_salary",
         "credit_analysis.modules_data.multiple_rule_deny_as.data.matchs.Mother name does not match with Serasa.":"multiple_rule_deny_as_mother_name_does_not_match_with_serasa",
         "credit_analysis.modules_data.multiple_rule_deny_as.data.matchs.Name does not match with Serasa.":"multiple_rule_deny_as_name_does_not_match_with_serasa",
-        "credit_analysis.modules_data.multiple_rule_deny_as.data.matchs.Stole documents on Serasa bigger than 0.":"multiple_rule_deny_as_stole_documents_on_serasa_bigger_than_0"
+        "credit_analysis.modules_data.multiple_rule_deny_as.data.matchs.Stole documents on Serasa bigger than 0.":"multiple_rule_deny_as_stole_documents_on_serasa_bigger_than_0",
+        "credit_analysis.modules_data.nog.data.status": "nog_status", 
+        "credit_analysis.modules_data.nog.data.term": "nog_term",
+        "credit_analysis.modules_data.nog.data.value": "nog_principal",
+        "credit_analysis.modules_data.nog.data.new_interest": "nog_interest"
 }
