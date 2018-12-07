@@ -11,6 +11,7 @@ class Database:
 		self._collections = {}
 
 	def __getattr__(self, collection):
+		""" Returns a Collection object."""
 		if collection not in self._collections:
 			self._collections[collection] = Collection(self._db, collection)
 		return self._collections[collection]
@@ -111,10 +112,27 @@ class Collection:
 		r_fields,o_fields = self._remap_fields(fields) if fields else (None,None)
 		result = self._collection.find(r_query, r_fields)
 
+		#import ipdb; ipdb.set_trace()
+
+		if not result:
+		 	return None
+
 		if 'limit' in kwargs:
 			result = result.limit(kwargs['limit'])
 
-		return self._build_dataframe(result, o_fields) if result.count() else None
+		result = list(result)
+
+		if 'verbose' in kwargs:
+			print(f'I found {len(result)} documents')
+
+		normalize = getattr(self, 'normalize_'+self._name)
+		if normalize:
+			result = normalize(result)
+
+		if 'verbose' in kwargs:
+			print(f'Will build a dataframe with {len(result)} documents')
+
+		return self._build_dataframe(result, o_fields)
 
 	def list_indexes(self):
 		return self._collection.list_indexes()
@@ -145,6 +163,19 @@ class Collection:
 			self._internal_field_mapper = None
 			self._user_field_mapper = None
 
+	def normalize_loans(self, documents):
+		def should_exclude(field):
+			_exclusions = [r'^Borrower has no IRPF declaration with salary']
+			return any([re.search(pattern, field) for pattern in _exclusions])
+
+		# normalize deny rules document
+		for doc in documents:
+		    if 'credit_analysis' in doc:
+		        for md in ['unique_rule_deny_as','unique_rule_deny_bs','multiple_rule_deny_as','multiple_rule_deny_bs']:
+		            if md in doc['credit_analysis']['modules_data'] and 'matchs' in doc['credit_analysis']['modules_data'][md]['data']:
+		                doc['credit_analysis']['modules_data'][md]['data']['matchs'] = dict([(r[0], r[1]) for r in doc['credit_analysis']['modules_data'][md]['data']['matchs'] if not should_exclude(r[0])])
+		return documents
+
 
 class MongoPandas:
 	@classmethod
@@ -158,6 +189,7 @@ class MongoPandas:
 		self._dbs = {}
 
 	def __getattr__(self, db):
+		""" Returns a Database object."""
 		if db not in self._dbs:
 			self._dbs[db] = Database(self._instance, db)
 		return self._dbs[db]

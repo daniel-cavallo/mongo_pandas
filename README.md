@@ -15,3 +15,12 @@ df.head()
 ```
 
 ## Dataframe column naming
+
+* The attributes in the subdocuments unique_rule_deny_as, unique_rule_deny_bs, multiple_rule_deny_bs and multiple_rule_deny_as from *loans* collection are not querable because they are not really attributes but itens in a list. What we need is to query the value associates with this item and not if it is in the list.
+
+# TODO
+
+* Convert output fields even when no output fileds were specified
+* Paginate queries when they are too large
+* Create hooks on variables to trigger the execution of a function
+* Create post-find hooks to perform operations on results
